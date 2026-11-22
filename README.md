@@ -16,6 +16,7 @@ Funciona no navegador e pode ser instalado no celular como um aplicativo, com te
 - **Diário de refeições** com calorias, proteína, carboidrato e gordura.
 - **Análise de comida por foto**: tira a foto pelo celular, a IA estima as gramas, calorias e macros, e você ajusta as gramas antes de salvar.
 - **Registro de peso** com gráfico de evolução.
+- **Balança corporal Bluetooth**: conecta em balanças compatíveis e registra o peso automaticamente (Chrome no Android/computador).
 - Metas diárias configuráveis.
 - Dados salvos no próprio aparelho (`localStorage`). Nada vai para servidores nossos.
 - Instalável como app (PWA) no Android e no iPhone.
@@ -37,6 +38,24 @@ Observações:
 - A IA só estima. Pratos com molhos, óleo escondido ou porções muito grandes podem variar bastante. Ajuste as gramas no resultado antes de salvar.
 - Se quiser trocar o modelo de visão, preencha **Modelo** nos ajustes (ex.: `gemini-2.5-flash`). Vazio = escolha automática.
 - A foto é enviada **direto do seu navegador para o Google**, usando a sua chave. Este site não tem servidor e não recebe nada.
+
+---
+
+## Balança corporal Bluetooth
+
+Em **Progresso → Balança Bluetooth → Conectar balança**.
+
+1. Ligue a balança e pise nela uma vez para acordar.
+2. Toque em **Conectar balança** e escolha o aparelho na lista do navegador.
+3. Pise na balança e fique parado. O app lê o peso e registra no histórico sozinho.
+
+Funciona com balanças que usam o padrão Bluetooth LE **Weight Scale (0x181D)**, no **Chrome do Android** ou em computadores compatíveis com Web Bluetooth. 
+
+Limitações:
+- **iPhone/iPad não suportam Web Bluetooth** — use o registro manual de peso.
+- Balanças com protocolo próprio do fabricante (ex.: Xiaomi) podem não aparecer ou não expor o serviço padrão.
+- Se a balança não aparecer, use **“Minha balança não aparece na lista”**. Se ainda assim não conectar, o modelo provavelmente não é compatível.
+- O pareamento é feito pelo navegador, com HTTPS. O peso é salvo apenas no seu aparelho.
 
 ---
 

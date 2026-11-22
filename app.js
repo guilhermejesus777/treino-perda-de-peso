@@ -76,6 +76,7 @@
       carbsGoal: 180,
       fatGoal: 60,
       weightGoal: null,
+      scaleName: "",
     },
     logs: {},
     meals: {},
@@ -1123,13 +1124,203 @@ Regras:
     $("#weightDialog").showModal();
   }
 
-  function saveWeight(kg) {
+  function saveWeight(kg, silent = false) {
     const date = ymd();
     state.weights = state.weights.filter((w) => w.date !== date);
     state.weights.push({ date, kg });
     saveState();
     renderProgress();
-    toast("Peso registrado.");
+    if (!silent) toast("Peso registrado.");
+  }
+
+  // ---------- Balança Bluetooth ----------
+  const SCALE_SERVICE = "0000181d-0000-1000-8000-00805f9b34fb";
+  const SCALE_CHARACTERISTIC = "00002a9d-0000-1000-8000-00805f9b34fb";
+  const BODY_COMP_SERVICE = "0000181b-0000-1000-8000-00805f9b34fb";
+  const scale = {
+    device: null,
+    characteristic: null,
+    connecting: false,
+    lastKg: null,
+    lastSavedAt: 0,
+    lastSavedKg: 0,
+  };
+
+  function updateScaleStatus(kind, title, hint) {
+    const status = $("#scaleStatus");
+    if (!status) return;
+    status.className = "scale-status" + (kind ? ` is-${kind}` : "");
+    $("#scaleState").textContent = title;
+    $("#scaleHint").textContent = hint;
+
+    const connected = kind === "connected" || kind === "reading";
+    const btn = $("#scaleConnect");
+    btn.hidden = connected;
+    $("#scaleDisconnect").hidden = !connected;
+    $("#scaleAll").hidden = connected || scale.connecting;
+    btn.classList.toggle("is-loading", scale.connecting);
+    btn.disabled = scale.connecting || !("bluetooth" in navigator);
+    btn.innerHTML = `${icon("i-bluetooth")} ${scale.connecting ? "Conectando…" : "Conectar balança"}`;
+  }
+
+  function initScale() {
+    if (!("bluetooth" in navigator)) {
+      scale.connecting = false;
+      updateScaleStatus(
+        "error",
+        "Indisponível neste navegador",
+        "A conexão com balança Bluetooth funciona no Chrome do Android e em computadores compatíveis. No iPhone, use o registro manual de peso."
+      );
+      $("#scaleConnect").disabled = true;
+      $("#scaleAll").hidden = true;
+      return;
+    }
+    const saved = state.settings.scaleName;
+    updateScaleStatus(
+      "",
+      "Desconectada",
+      saved
+        ? `Última balança: ${saved}. Ligue-a e toque em conectar.`
+        : "Ligue a balança, pise nela para acordar e toque em conectar."
+    );
+    $("#scaleConnect").addEventListener("click", () => connectScale(false));
+    $("#scaleAll").addEventListener("click", () => connectScale(true));
+    $("#scaleDisconnect").addEventListener("click", disconnectScale);
+    $("#scaleReading").hidden = true;
+  }
+
+  async function connectScale(showAll) {
+    if (!("bluetooth" in navigator) || scale.connecting) return;
+    scale.connecting = true;
+    let selected = false;
+    updateScaleStatus("connecting", "Conectando…", "Escolha a balança na lista do navegador.");
+
+    try {
+      const options = showAll
+        ? { acceptAllDevices: true, optionalServices: [SCALE_SERVICE, BODY_COMP_SERVICE] }
+        : { filters: [{ services: [SCALE_SERVICE] }], optionalServices: [BODY_COMP_SERVICE] };
+      const device = await navigator.bluetooth.requestDevice(options);
+      selected = true;
+      scale.device = device;
+      device.addEventListener("gattserverdisconnected", onScaleDisconnected);
+
+      updateScaleStatus(
+        "connecting",
+        `Conectando a ${device.name || "balança"}…`,
+        "Mantenha a balança acordada e perto do celular."
+      );
+
+      const server = await device.gatt.connect();
+      const service = await server.getPrimaryService(SCALE_SERVICE);
+      const characteristic = await service.getCharacteristic(SCALE_CHARACTERISTIC);
+      await characteristic.startNotifications();
+      characteristic.addEventListener("characteristicvaluechanged", onScaleMeasurement);
+      scale.characteristic = characteristic;
+
+      scale.connecting = false;
+      state.settings.scaleName = device.name || "Balança";
+      saveState();
+      updateScaleStatus("connected", "Conectada", "Pise na balança e fique parado até a leitura aparecer.");
+
+      try {
+        const value = await characteristic.readValue();
+        if (value) handleScaleValue(value);
+      } catch {
+        /* Algumas balanças só enviam por notificação. */
+      }
+    } catch (err) {
+      scale.connecting = false;
+      const name = err?.name || "";
+      const message = err?.message || "";
+      if (!selected && name === "NotFoundError") {
+        updateScaleStatus("", "Desconectada", "Nenhuma balança escolhida. Toque em conectar quando estiver pronto.");
+      } else if (name === "SecurityError" || /permission/i.test(message)) {
+        updateScaleStatus(
+          "error",
+          "Permissão necessária",
+          "Autorize o acesso ao Bluetooth nas permissões do navegador e tente de novo."
+        );
+      } else if (/no service|service.*not found/i.test(message)) {
+        updateScaleStatus(
+          "error",
+          "Balança não compatível",
+          showAll
+            ? "Ela não expõe o serviço padrão de peso (0x181D). O modelo provavelmente usa um protocolo próprio do fabricante."
+            : 'Tente "Minha balança não aparece na lista" e escolha o aparelho. Se continuar, o modelo pode usar protocolo próprio.'
+        );
+      } else {
+        updateScaleStatus(
+          "error",
+          "Não foi possível conectar",
+          "Ligue a balança, aproxime o celular e tente novamente. Se persistir, o modelo pode não ser compatível."
+        );
+      }
+      console.warn("Balança:", err);
+    }
+  }
+
+  function onScaleMeasurement(event) {
+    const value = event?.target?.value;
+    if (value) handleScaleValue(value);
+  }
+
+  function handleScaleValue(view) {
+    try {
+      if (!view || view.byteLength < 3) return;
+      const flags = view.getUint8(0);
+      const imperial = (flags & 0x01) !== 0;
+      const raw = view.getUint16(1, true);
+      let kg = imperial ? raw * 0.01 * 0.45359237 : raw * 0.005;
+      if (!Number.isFinite(kg) || kg < 20 || kg > 300) return;
+      kg = Math.round(kg * 10) / 10;
+      scale.lastKg = kg;
+
+      $("#scaleReading").hidden = false;
+      $("#scaleKg").textContent = kg.toLocaleString("pt-BR", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      });
+
+      const now = Date.now();
+      const repeated = now - scale.lastSavedAt < 8000 && Math.abs(kg - scale.lastSavedKg) < 0.05;
+      if (repeated) {
+        updateScaleStatus("connected", "Leitura recebida", "Esse peso já foi registrado agora há pouco.");
+        return;
+      }
+      scale.lastSavedAt = now;
+      scale.lastSavedKg = kg;
+      saveWeight(kg, true);
+      updateScaleStatus(
+        "connected",
+        "Peso registrado",
+        `Leitura de ${kg.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg salva no histórico.`
+      );
+      toast("Peso registrado pela balança. ⚖️");
+    } catch (err) {
+      console.warn("Balança:", err);
+    }
+  }
+
+  function onScaleDisconnected() {
+    const name = scale.device?.name;
+    scale.characteristic = null;
+    scale.connecting = false;
+    updateScaleStatus(
+      "",
+      "Desconectada",
+      name ? `${name} desconectou. Ligue a balança e toque em conectar de novo.` : "Balança desconectada."
+    );
+    $("#scaleReading").hidden = true;
+  }
+
+  function disconnectScale() {
+    try {
+      if (scale.device?.gatt?.connected) scale.device.gatt.disconnect();
+    } catch { /* ignore */ }
+    scale.characteristic = null;
+    scale.connecting = false;
+    updateScaleStatus("", "Desconectada", "Balança desconectada. Toque em conectar quando quiser.");
+    $("#scaleReading").hidden = true;
   }
 
   // ---------- Ajustes ----------
@@ -1384,6 +1575,7 @@ Regras:
     updateInstallUI();
     bind();
     bindTimer();
+    initScale();
     const requestedView = new URLSearchParams(window.location.search).get("view");
     showView(requestedView || state.lastView || "treino", false);
 

@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=4" />
+  <link rel="stylesheet" href="./styles.css?v=5" />
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -36,6 +36,7 @@
     <symbol id="i-scale" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M8 15.5a4 4 0 1 1 8 0M12 11.8l1.8-1.8"/></symbol>
     <symbol id="i-chart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 20V4M4 20h16M7.5 15l3.5-4 3 2.5 4.5-6"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M12 7.2V12l3.2 2"/></symbol>
+    <symbol id="i-bluetooth" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="m7 7 10 10-5 5V2l5 5L7 17"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 3.5v11m0 0 4-4m-4 4-4-4M4.5 16.5v2A2 2 0 0 0 6.5 20h11a2 2 0 0 0 2-1.5v-2"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 11v5.5"/><circle cx="12" cy="7.8" r="1.2" fill="currentColor"/></symbol>
     <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2 4 14h6l-1 8 9.5-12h-6l1-8Z"/></symbol>
@@ -256,6 +257,42 @@
 
       <div class="stat-grid" id="progressStats"></div>
 
+      <div class="panel scale-panel">
+        <div class="panel-head">
+          <div>
+            <h3>Balança Bluetooth</h3>
+            <p class="muted small">Conecte uma balança corporal compatível e registre o peso sem digitar.</p>
+          </div>
+          <svg class="ic ic-lg scale-ic"><use href="#i-bluetooth"/></svg>
+        </div>
+
+        <div class="scale-status" id="scaleStatus">
+          <span class="scale-dot"></span>
+          <div class="scale-status-text">
+            <strong id="scaleState">Desconectada</strong>
+            <span id="scaleHint">Ligue a balança, pise nela para acordar e toque em conectar.</span>
+          </div>
+        </div>
+
+        <div class="scale-reading" id="scaleReading" hidden>
+          <strong id="scaleKg">0,0</strong><span>kg</span>
+        </div>
+
+        <div class="scale-actions">
+          <button class="btn btn-primary" id="scaleConnect" type="button">
+            <svg class="ic"><use href="#i-bluetooth"/></svg> Conectar balança
+          </button>
+          <button class="btn btn-ghost" id="scaleDisconnect" type="button" hidden>
+            Desconectar
+          </button>
+        </div>
+        <button class="link-btn" id="scaleAll" type="button">Minha balança não aparece na lista</button>
+        <p class="scale-note">
+          Funciona com balanças Bluetooth LE que usam o padrão Weight Scale (0x181D). Modelos com protocolo próprio
+          (ex.: Xiaomi) podem não aparecer. No iPhone, use o registro manual de peso.
+        </p>
+      </div>
+
       <div class="panel">
         <div class="panel-head">
           <div>
@@ -446,6 +483,6 @@
     </div>
   </dialog>
 
-  <script src="./app.js?v=4"></script>
+  <script src="./app.js?v=5"></script>
 </body>
 </html>
