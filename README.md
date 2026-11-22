@@ -11,6 +11,7 @@ Funciona no navegador e pode ser instalado no celular como um aplicativo, com te
 ## Funcionalidades
 
 - **Treinos A/B/C** (segunda, quarta e sexta) com todos os exercícios do plano original.
+- **Cronômetro de descanso** com presets de 30s, 1min, 1min30 e 2min, alarme sonoro/vibração no fim — e **cronômetro livre** para medir o treino inteiro.
 - Marcação exercício por exercício, progresso da semana e sequência de semanas completas.
 - **Diário de refeições** com calorias, proteína, carboidrato e gordura.
 - **Análise de comida por foto**: tira a foto pelo celular, a IA estima as gramas, calorias e macros, e você ajusta as gramas antes de salvar.

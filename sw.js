@@ -1,5 +1,5 @@
 /* Service worker — Projeto Perda de Peso */
-const CACHE = "ppp-v1";
+const CACHE = "ppp-v2";
 const ASSETS = [
   "./",
   "./index.html",

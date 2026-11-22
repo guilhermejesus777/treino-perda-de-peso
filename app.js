@@ -332,6 +332,222 @@
     if (nowAllDone && !wasAllDone) toast(`${workout.title} concluído. Boa! 🔥`);
   }
 
+  // ---------- Cronômetro ----------
+  const timer = {
+    mode: "rest",
+    preset: 90,
+    duration: 90,
+    remaining: 90,
+    running: false,
+    endAt: 0,
+    elapsed: 0,
+    startedAt: 0,
+    tickId: null,
+    audio: null,
+    wake: null,
+  };
+
+  const timerNow = () => performance.now();
+
+  function timerValue() {
+    if (timer.mode === "rest") {
+      return timer.running ? Math.max(0, (timer.endAt - timerNow()) / 1000) : timer.remaining;
+    }
+    return timer.running ? timer.elapsed + (timerNow() - timer.startedAt) / 1000 : timer.elapsed;
+  }
+
+  function fmtTimer(seconds) {
+    const total = Math.max(0, timer.mode === "rest" ? Math.ceil(seconds) : Math.floor(seconds));
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  function fmtPreset(seconds) {
+    if (seconds < 60) return `${seconds}s`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}min${s ? String(s).padStart(2, "0") : ""}`;
+  }
+
+  function renderTimer() {
+    const value = timerValue();
+    const card = $("#timerCard");
+    const finished = timer.mode === "rest" && !timer.running && timer.remaining <= 0.001;
+    const canContinue = timer.mode === "rest" ? timer.remaining > 0 && timer.remaining < timer.duration : timer.elapsed > 0;
+
+    $("#timerDisplay").textContent = fmtTimer(value);
+    card.classList.toggle("is-running", timer.running);
+    card.classList.toggle("is-stop", timer.mode === "stop");
+    card.classList.toggle("is-finished", finished);
+
+    if (timer.mode === "rest") {
+      const pct = timer.duration > 0 ? Math.max(0, Math.min(100, (value / timer.duration) * 100)) : 0;
+      $("#timerBar").style.width = `${pct}%`;
+    } else {
+      $("#timerBar").style.width = "100%";
+    }
+
+    const label = timer.running ? "Pausar" : canContinue ? "Continuar" : "Iniciar";
+    const startBtn = $("#timerStart");
+    if (startBtn.dataset.label !== label) {
+      startBtn.dataset.label = label;
+      startBtn.innerHTML = `${icon(timer.running ? "i-pause" : "i-play")} ${label}`;
+    }
+
+    const hint = finished
+      ? "Descanso concluído. Hora da próxima série! 🔥"
+      : timer.mode === "rest"
+        ? timer.running
+          ? `Descanso de ${fmtPreset(timer.preset)} em andamento…`
+          : "Descanse 60–90s entre as séries. Escolha um tempo e toque em iniciar."
+        : timer.running
+          ? "Cronômetro livre contando o tempo do treino."
+          : timer.elapsed > 0
+            ? "Cronômetro pausado. Toque em continuar."
+            : "Conta o tempo total do treino, sem limite. Útil para acompanhar a sessão.";
+    const hintEl = $("#timerHint");
+    if (hintEl.textContent !== hint) hintEl.textContent = hint;
+
+    $("#timerPresets").hidden = timer.mode !== "rest";
+    $("#timerSound").style.visibility = timer.mode === "rest" ? "visible" : "hidden";
+    $$("#timerPresets [data-preset]").forEach((b) => {
+      b.classList.toggle("is-active", Number(b.dataset.preset) === timer.preset);
+      b.setAttribute("aria-pressed", String(Number(b.dataset.preset) === timer.preset));
+    });
+  }
+
+  function ensureAudio() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!timer.audio) timer.audio = new Ctx();
+      if (timer.audio.state === "suspended") timer.audio.resume().catch(() => {});
+    } catch { /* áudio indisponível */ }
+  }
+
+  function playAlarm() {
+    try {
+      const ctx = timer.audio;
+      if (ctx) {
+        if (ctx.state === "suspended") ctx.resume().catch(() => {});
+        const now = ctx.currentTime;
+        [0, 0.24, 0.48].forEach((offset, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = i === 2 ? 1046.5 : 880;
+          gain.gain.setValueAtTime(0.0001, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.3, now + offset + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.2);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.24);
+        });
+      }
+    } catch { /* sem som */ }
+    if (navigator.vibrate) navigator.vibrate([180, 90, 180, 90, 320]);
+  }
+
+  async function requestWakeLock() {
+    try {
+      if (!("wakeLock" in navigator)) return;
+      timer.wake = await navigator.wakeLock.request("screen");
+    } catch { /* sem wake lock */ }
+  }
+
+  function releaseWakeLock() {
+    try { timer.wake?.release(); } catch { /* ignore */ }
+    timer.wake = null;
+  }
+
+  function stopTicking() {
+    if (timer.tickId) clearInterval(timer.tickId);
+    timer.tickId = null;
+    timer.running = false;
+    releaseWakeLock();
+  }
+
+  function tickTimer() {
+    if (!timer.running) return;
+    if (timer.mode === "rest" && timerNow() >= timer.endAt) {
+      timer.remaining = 0;
+      stopTicking();
+      renderTimer();
+      playAlarm();
+      toast("Descanso concluído. Próxima série! 🔥");
+      return;
+    }
+    renderTimer();
+  }
+
+  function toggleTimer() {
+    if (timer.running) {
+      if (timer.mode === "rest") timer.remaining = Math.max(0, (timer.endAt - timerNow()) / 1000);
+      else timer.elapsed += (timerNow() - timer.startedAt) / 1000;
+      stopTicking();
+      renderTimer();
+      return;
+    }
+
+    ensureAudio();
+    requestWakeLock();
+    if (timer.mode === "rest") {
+      if (timer.remaining <= 0) timer.remaining = timer.duration;
+      timer.endAt = timerNow() + timer.remaining * 1000;
+    } else {
+      timer.startedAt = timerNow();
+    }
+    timer.running = true;
+    timer.tickId = setInterval(tickTimer, 100);
+    renderTimer();
+  }
+
+  function resetTimer() {
+    stopTicking();
+    if (timer.mode === "rest") timer.remaining = timer.duration;
+    else timer.elapsed = 0;
+    renderTimer();
+  }
+
+  function setTimerMode(mode) {
+    if (!["rest", "stop"].includes(mode)) return;
+    stopTicking();
+    timer.mode = mode;
+    timer.remaining = timer.duration;
+    timer.elapsed = 0;
+    $$(".seg[data-timer-mode]").forEach((b) => {
+      const active = b.dataset.timerMode === mode;
+      b.classList.toggle("is-active", active);
+      b.setAttribute("aria-pressed", String(active));
+    });
+    renderTimer();
+  }
+
+  function setTimerPreset(seconds) {
+    if (!Number.isFinite(seconds) || seconds <= 0) return;
+    stopTicking();
+    timer.preset = seconds;
+    timer.duration = seconds;
+    timer.remaining = seconds;
+    renderTimer();
+  }
+
+  function bindTimer() {
+    $("#timerStart").addEventListener("click", toggleTimer);
+    $("#timerReset").addEventListener("click", resetTimer);
+    $$(".seg[data-timer-mode]").forEach((b) =>
+      b.addEventListener("click", () => setTimerMode(b.dataset.timerMode))
+    );
+    $("#timerPresets").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-preset]");
+      if (btn) setTimerPreset(Number(btn.dataset.preset));
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && timer.running) requestWakeLock();
+    });
+  }
+
   // ---------- Comida: resumo e diário ----------
   function dayMeals(key = todayKey()) {
     return state.meals[key] || [];
@@ -1162,10 +1378,12 @@ Regras:
     renderTodayBanner();
     renderWeek();
     renderWorkouts();
+    renderTimer();
     renderFood();
     renderProgress();
     updateInstallUI();
     bind();
+    bindTimer();
     const requestedView = new URLSearchParams(window.location.search).get("view");
     showView(requestedView || state.lastView || "treino", false);
 
