@@ -1388,14 +1388,10 @@ Regras:
     showView(requestedView || state.lastView || "treino", false);
 
     if ("serviceWorker" in navigator) {
-      const hadController = !!navigator.serviceWorker.controller;
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (!hadController || window.__swReloading) return;
-        window.__swReloading = true;
-        window.location.reload();
-      });
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch((err) => console.warn("SW:", err));
+        navigator.serviceWorker
+          .register("./sw.js", { updateViaCache: "none" })
+          .catch((err) => console.warn("SW:", err));
       });
     }
     if (navigator.storage?.persist) {

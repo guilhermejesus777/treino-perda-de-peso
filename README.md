@@ -86,7 +86,7 @@ git commit -m "minha alteração"
 git push
 ```
 
-O GitHub Pages publica sozinho em ~1 minuto. Se mudar `index.html`, `styles.css` ou `app.js`, **aumente a versão do cache no topo do `sw.js`** (`ppp-v1` → `ppp-v2`) para os aparelhos baixarem a versão nova.
+O GitHub Pages publica sozinho em ~1 minuto. Se mudar `index.html`, `styles.css` ou `app.js`, **aumente a versão** no link do CSS/JS no `index.html`, na lista `ASSETS` e no `CACHE` do `sw.js` (ex.: `?v=4` → `?v=5`, `ppp-v4` → `ppp-v5`). Assim os celulares que já instalaram o app baixam a versão nova na hora.
 
 ---
 
