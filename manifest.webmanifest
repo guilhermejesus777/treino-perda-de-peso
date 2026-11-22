@@ -1,0 +1,56 @@
+{
+  "name": "Projeto Perda de Peso",
+  "short_name": "Perda de Peso",
+  "description": "Treino ABC 3x por semana, diário de refeições e análise de comida por foto com IA.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#080405",
+  "theme_color": "#0b0506",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Analisar comida",
+      "short_name": "Comida",
+      "url": "./index.html?view=comida",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Treino de hoje",
+      "short_name": "Treino",
+      "url": "./index.html?view=treino",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
