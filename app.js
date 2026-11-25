@@ -1219,12 +1219,14 @@ Regras:
 
     const connected = kind === "connected" || kind === "reading";
     const btn = $("#scaleConnect");
+    const btnSQ = $("#scaleConnectSQ");
     btn.hidden = connected;
     $("#scaleDisconnect").hidden = !connected;
     $("#scaleAll").hidden = connected || scale.connecting;
     btn.classList.toggle("is-loading", scale.connecting);
     btn.disabled = scale.connecting || !("bluetooth" in navigator);
     btn.innerHTML = `${icon("i-bluetooth")} ${scale.connecting ? "Conectando…" : "Conectar balança"}`;
+    if (btnSQ) btnSQ.disabled = scale.connecting || !("bluetooth" in navigator);
   }
 
   function initScale() {
@@ -1236,6 +1238,7 @@ Regras:
         "A conexão com balança Bluetooth funciona no Chrome do Android e em computadores compatíveis. No iPhone, use o registro manual de peso."
       );
       $("#scaleConnect").disabled = true;
+      $("#scaleConnectSQ").disabled = true;
       $("#scaleAll").hidden = true;
       return;
     }
@@ -1249,6 +1252,7 @@ Regras:
     );
     $("#scaleConnect").addEventListener("click", () => connectScale(false));
     $("#scaleAll").addEventListener("click", () => connectScale(true));
+    $("#scaleConnectSQ").addEventListener("click", () => connectSQ());
     $("#scaleDisconnect").addEventListener("click", disconnectScale);
     $("#scaleReading").hidden = true;
   }
@@ -1383,8 +1387,81 @@ Regras:
     } catch { /* ignore */ }
     scale.characteristic = null;
     scale.connecting = false;
+    stopSQScan();
     updateScaleStatus("", "Desconectada", "Balança desconectada. Toque em conectar quando quiser.");
     $("#scaleReading").hidden = true;
+  }
+
+  const SQ_COMPANY_ID = 0x07c0;
+  let sqScan = null;
+  let sqScanActive = false;
+  let sqWeight = null;
+
+  async function connectSQ() {
+    if (!("bluetooth" in navigator) || typeof navigator.bluetooth.requestLEScan !== "function") {
+      updateScaleStatus(
+        "error",
+        "Sem suporte",
+        "Esse navegador não suporta. Use Chrome no Android com HTTPS e ative a flag Experimental Web Platform features, ou digite o peso manualmente."
+      );
+      toast("Este navegador não suporta o escaneio BLE para a balança SQ. Use Chrome no Android com a flag Experimental Web Platform features, ou digite o peso manualmente.", true);
+      return;
+    }
+    if (sqScanActive) return;
+    sqScanActive = true;
+    scale.connecting = true;
+    updateScaleStatus("connecting", "Escaneando Balança SQ…", "Aponte o celular para a balança e aguarde a leitura.");
+    try {
+      const scan = await navigator.bluetooth.requestLEScan({ acceptAllAdvertisements: true });
+      navigator.bluetooth.addEventListener("advertisementreceived", onSQAdvertisement);
+      sqScan = scan;
+      updateScaleStatus("connected", "Escaneando", "Aguardando anúncios da Balança SQ…");
+    } catch (err) {
+      sqScanActive = false;
+      scale.connecting = false;
+      updateScaleStatus("error", "Falha no escaneio", "Não foi possível iniciar o escaneio BLE. Verifique Bluetooth/permissões e tente de novo.");
+      console.warn("Balança SQ:", err);
+    }
+  }
+
+  function onSQAdvertisement(event) {
+    const md = event?.manufacturerData;
+    if (!md) return;
+    const entries = [];
+    if (typeof md.forEach === "function") {
+      md.forEach((dataView, companyId) => entries.push({ companyId, dataView }));
+    } else if (Array.isArray(md)) {
+      md.forEach((dataView, index) => entries.push({ companyId: 0x07c0, dataView }));
+    }
+    for (const entry of entries) {
+      if (entry.companyId === SQ_COMPANY_ID && entry.dataView) {
+        try {
+          const raw = entry.dataView.getUint16(0, false);
+          const kg = raw / 100;
+          if (!Number.isFinite(kg) || kg <= 0) continue;
+          handleSQWeight(kg);
+        } catch { /* ignore */ }
+      }
+    }
+  }
+
+  function handleSQWeight(kg) {
+    const weight = Math.round(kg * 100) / 100;
+    sqWeight = weight;
+    const display = Number(weight.toFixed(2)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    $("#scaleKg").textContent = display;
+    $("#scaleReading").hidden = false;
+    updateScaleStatus("reading", "Leitura recebida", `Balança SQ: ${display} kg`);
+    const weightInput = document.getElementById("weightInput");
+    if (weightInput) weightInput.value = weight.toFixed(2);
+  }
+
+  function stopSQScan() {
+    try {
+      if (sqScan) sqScan.stop();
+    } catch { /* ignore */ }
+    sqScan = null;
+    sqScanActive = false;
   }
 
   // ---------- Ajustes ----------

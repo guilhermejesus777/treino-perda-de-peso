@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=8" />
+  <link rel="stylesheet" href="./styles.css?v=9" />
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -296,6 +296,9 @@
           <button class="btn btn-primary" id="scaleConnect" type="button">
             <svg class="ic"><use href="#i-bluetooth"/></svg> Conectar balança
           </button>
+          <button class="btn btn-ghost" id="scaleConnectSQ" type="button">
+            <svg class="ic"><use href="#i-bluetooth"/></svg> Conectar Balança SQ
+          </button>
           <button class="btn btn-ghost" id="scaleDisconnect" type="button" hidden>
             Desconectar
           </button>
@@ -303,7 +306,7 @@
         <button class="link-btn" id="scaleAll" type="button">Minha balança não aparece na lista</button>
         <p class="scale-note">
           Funciona com balanças Bluetooth LE que usam o padrão Weight Scale (0x181D). Modelos com protocolo próprio
-          (ex.: Xiaomi) podem não aparecer. No iPhone, use o registro manual de peso.
+          (ex.: SQ) podem usar o botão "Conectar Balança SQ". No iPhone, use o registro manual de peso.
         </p>
       </div>
 
@@ -497,6 +500,6 @@
     </div>
   </dialog>
 
-  <script src="./app.js?v=8"></script>
+  <script src="./app.js?v=9"></script>
 </body>
 </html>
