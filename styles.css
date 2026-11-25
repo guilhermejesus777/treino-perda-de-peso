@@ -1040,6 +1040,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 .demo-motion { position: absolute; left: 14px; right: 14px; top: 20px; height: 6px; border-radius: 3px; background: linear-gradient(180deg, #ffc46b, #ff7a18); box-shadow: 0 8px 16px rgba(255, 106, 24, 0.25); }
 .demo-motion::before, .demo-motion::after { content: ""; position: absolute; top: -9px; width: 12px; height: 18px; border-radius: 6px; background: linear-gradient(180deg, #ffcf9a, #ff7a18); }
 .demo-motion::before { left: 0; } .demo-motion::after { right: 0; }
+.workout-demo { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.workout-demo .demo-motion { position: absolute; left: 50%; top: 50%; width: 22px; height: 6px; margin: -3px 0 0 -11px; border-radius: 3px; background: linear-gradient(180deg, #ffc46b, #ff7a18); box-shadow: 0 8px 16px rgba(255, 106, 24, 0.25); animation-duration: 3.4s; animation-timing-function: ease-in-out; }
+.workout-demo .demo-motion::before, .workout-demo .demo-motion::after { content: ""; position: absolute; top: -9px; width: 12px; height: 18px; border-radius: 6px; background: linear-gradient(180deg, #ffcf9a, #ff7a18); }
+.workout-demo .demo-motion::before { left: 0; } .workout-demo .demo-motion::after { right: 0; }
 
 /* animações de repouso/execução */
 @keyframes tDown { 0%, 40% { transform: translate(0, 0); } 45%, 60% { transform: translate(0, 46px); } 65%, 100% { transform: translate(0, 0); } }

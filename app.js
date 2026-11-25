@@ -993,6 +993,12 @@ Regras:
     { key: "sábado", label: "Sábado", workoutId: null },
   ];
 
+  const WORKOUT_SEQ = {
+    A: ["tDown", "tDown", "tOHP", "tLateral", "tDown"],
+    B: ["tDown", "tUp", "tUp", "tUp", "tUp"],
+    C: ["tPull", "tPull", "tCurl", "tCurl", "tCore"],
+  };
+
   function renderTutorial() {
     const root = document.getElementById("tutorialList");
     if (!root) return;
@@ -1005,7 +1011,14 @@ Regras:
       if (isRest) {
         body = `<p class="muted small" style="margin-top:10px">Recuperação: caminhada, alongamento ou mobilidade. Sem treino de carga hoje.</p>`;
       } else {
-        body = exercises
+        const seq = WORKOUT_SEQ[workout.id] || [];
+        const strip = `<div class="workout-demo">${seq
+          .map(
+            (anim, i) =>
+              `<div class="demo-motion" style="animation: ${anim} 3.4s ease-in-out infinite; animation-delay: ${i * 3400}ms;"></div>`
+          )
+          .join("")}</div>`;
+        body = `${strip}<ul class="tutorial-list">${exercises
           .map(
             (ex) => `<li class="tutorial-exercise">
         <div class="demo" aria-hidden="true">
@@ -1017,7 +1030,7 @@ Regras:
         </div>
       </li>`
           )
-          .join("");
+          .join("")}</ul>`;
       }
       const accent = isRest ? "#8f7773" : workout.accent;
       const title = isRest ? "Descanso" : workout.title;
