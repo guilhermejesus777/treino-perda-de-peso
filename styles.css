@@ -1000,6 +1000,56 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .foot > p:first-child { font-family: var(--font-display); letter-spacing: 0.09em; text-transform: uppercase; color: var(--amber); font-size: 16px; margin-bottom: 4px; }
 
+/* ---------------- Tutorial ---------------- */
+.tutorial-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.tutorial-card {
+  position: relative;
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel) 65%);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  padding: 18px;
+}
+.tutorial-card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent, var(--orange)), transparent 90%);
+}
+.tutorial-card.is-rest { opacity: 0.82; }
+.tutorial-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tutorial-day {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(100deg, var(--accent, var(--orange)), rgba(255, 255, 255, 0.14));
+  color: #1a0802;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.tutorial-card h3 { font-family: var(--font-display); font-weight: 400; font-size: 32px; letter-spacing: 0.04em; text-transform: uppercase; line-height: 0.98; margin-top: 12px; }
+.tutorial-card.is-rest h3 { color: var(--muted); }
+.tutorial-sub { margin-top: 5px; color: var(--amber); font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.tutorial-list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; }
+.tutorial-exercise { display: flex; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid var(--line); }
+.tutorial-ex-info { min-width: 0; }
+.tutorial-ex-info strong { display: block; font-size: 13px; font-weight: 600; line-height: 1.35; }
+.tutorial-ex-info .reps { color: var(--amber); font-weight: 700; }
+.tutorial-ex-info p { margin-top: 2px; font-size: 11px; }
+.demo { position: relative; width: 72px; height: 72px; flex: none; border: 1px dashed var(--line-strong); border-radius: 12px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.005)); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.demo-motion { position: absolute; left: 14px; right: 14px; top: 20px; height: 6px; border-radius: 3px; background: linear-gradient(180deg, #ffc46b, #ff7a18); box-shadow: 0 8px 16px rgba(255, 106, 24, 0.25); }
+.demo-motion::before, .demo-motion::after { content: ""; position: absolute; top: -9px; width: 12px; height: 18px; border-radius: 6px; background: linear-gradient(180deg, #ffcf9a, #ff7a18); }
+.demo-motion::before { left: 0; } .demo-motion::after { right: 0; }
+
+/* animações de repouso/execução */
+@keyframes tDown { 0%, 40% { transform: translate(0, 0); } 45%, 60% { transform: translate(0, 46px); } 65%, 100% { transform: translate(0, 0); } }
+@keyframes tUp { 0%, 30% { transform: translate(0, 0); } 35%, 100% { transform: translate(0, -72px); } }
+@keyframes tOHP { 0%, 38% { transform: translate(0, 0); } 43%, 100% { transform: translate(0, -84px); } }
+@keyframes tPull { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(0, 0) rotate(-26deg); } }
+@keyframes tCurl { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(0, 0) rotate(-32deg); } }
+@keyframes tLateral { 0%, 35% { transform: translate(0, 0); } 40%, 100% { transform: translate(56px, 0); } }
+@keyframes tCore { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, -16px); } }
+
 /* ---------------- Responsivo ---------------- */
 @media (max-width: 900px) {
   .workout-grid { grid-template-columns: 1fr; }
@@ -1033,6 +1083,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   .timer-presets { justify-content: flex-start; }
   .timer-actions .btn { flex: 1 1 0; }
   .timer-sound { text-align: left; }
+  .tutorial-grid { grid-template-columns: 1fr; }
+  .tutorial-card { padding: 16px; }
+  .demo { width: 60px; height: 60px; }
+  .demo-motion { top: 17px; }
   .day-card { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 16px; padding: 18px 16px; }
   .day-info { width: 100%; }
   .macro-bars { text-align: left; }

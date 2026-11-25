@@ -20,11 +20,11 @@
       icon: "i-dumbbell",
       accent: "#ff3b30",
       exercises: [
-        { name: "Supino no banco", reps: "4x12" },
-        { name: "Flexão inclinada no banco", reps: "3x até falhar" },
-        { name: "Desenvolvimento ombro sentado", reps: "4x12" },
-        { name: "Elevação lateral", reps: "3x15" },
-        { name: "Tríceps mergulho no banco", reps: "3x12" },
+        { name: "Supino no banco", reps: "4x12", demo: "tDown" },
+        { name: "Flexão inclinada no banco", reps: "3x até falhar", demo: "tDown" },
+        { name: "Desenvolvimento ombro sentado", reps: "4x12", demo: "tOHP" },
+        { name: "Elevação lateral", reps: "3x15", demo: "tLateral" },
+        { name: "Tríceps mergulho no banco", reps: "3x12", demo: "tDown" },
       ],
       cardio: "15min esteira inclinada",
     },
@@ -38,11 +38,11 @@
       icon: "i-bolt",
       accent: "#ff7a18",
       exercises: [
-        { name: "Agachamento com halter", reps: "4x12" },
-        { name: "Cadeira extensora", reps: "4x15" },
-        { name: "Afundo búlgaro", reps: "3x10 cada perna" },
-        { name: "Panturrilha em pé com halter", reps: "4x20" },
-        { name: "Elevação de quadril com anilha", reps: "3x15" },
+        { name: "Agachamento com halter", reps: "4x12", demo: "tDown" },
+        { name: "Cadeira extensora", reps: "4x15", demo: "tUp" },
+        { name: "Afundo búlgaro", reps: "3x10 cada perna", demo: "tUp" },
+        { name: "Panturrilha em pé com halter", reps: "4x20", demo: "tUp" },
+        { name: "Elevação de quadril com anilha", reps: "3x15", demo: "tUp" },
       ],
       cardio: "15min corre 1min / caminha 1min",
     },
@@ -56,11 +56,11 @@
       icon: "i-dumbbell",
       accent: "#ffb347",
       exercises: [
-        { name: "Remada curvada", reps: "4x12" },
-        { name: "Remada unilateral no banco", reps: "3x12 cada lado" },
-        { name: "Rosca bíceps", reps: "3x12" },
-        { name: "Rosca martelo", reps: "3x12" },
-        { name: "Prancha 3x45seg + abdominal no banco", reps: "3x20" },
+        { name: "Remada curvada", reps: "4x12", demo: "tPull" },
+        { name: "Remada unilateral no banco", reps: "3x12 cada lado", demo: "tPull" },
+        { name: "Rosca bíceps", reps: "3x12", demo: "tCurl" },
+        { name: "Rosca martelo", reps: "3x12", demo: "tCurl" },
+        { name: "Prancha 3x45seg + abdominal no banco", reps: "3x20", demo: "tCore" },
       ],
       cardio: "15min esteira",
     },
@@ -188,7 +188,7 @@
   }
 
   // ---------- Navegação ----------
-  const views = ["treino", "comida", "progresso"];
+  const views = ["treino", "comida", "progresso", "tutorial"];
   function showView(name, persist = true) {
     if (!views.includes(name)) name = "treino";
     $$(".tab[data-view]").forEach((btn) => {
@@ -198,13 +198,13 @@
     });
     views.forEach((v) => {
       $(`#view-${v}`).hidden = v !== name;
-    });
-    if (persist) {
+    });if (persist) {
       state.lastView = name;
       saveState();
     }
     if (name === "progresso") renderProgress();
     if (name === "comida") renderFood();
+    if (name === "tutorial") renderTutorial();
     window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
   }
 
@@ -980,6 +980,57 @@ Regras:
     resetAnalyzer();
     toast("Refeição adicionada ao diário.");
     renderFood();
+  }
+
+  // ---------- Tutorial ----------
+  const TUTORIAL_DAYS = [
+    { key: "domingo", label: "Domingo", workoutId: null },
+    { key: "segunda-feira", label: "Segunda-feira", workoutId: "A" },
+    { key: "terça-feira", label: "Terça-feira", workoutId: null },
+    { key: "quarta-feira", label: "Quarta-feira", workoutId: "B" },
+    { key: "quinta-feira", label: "Quinta-feira", workoutId: null },
+    { key: "sexta-feira", label: "Sexta-feira", workoutId: "C" },
+    { key: "sábado", label: "Sábado", workoutId: null },
+  ];
+
+  function renderTutorial() {
+    const root = document.getElementById("tutorialList");
+    if (!root) return;
+
+    const cards = TUTORIAL_DAYS.map((day) => {
+      const workout = day.workoutId ? WORKOUTS.find((w) => w.id === day.workoutId) : null;
+      const isRest = !workout;
+      const exercises = workout ? workout.exercises : [];
+      let body;
+      if (isRest) {
+        body = `<p class="muted small" style="margin-top:10px">Recuperação: caminhada, alongamento ou mobilidade. Sem treino de carga hoje.</p>`;
+      } else {
+        body = exercises
+          .map(
+            (ex) => `<li class="tutorial-exercise">
+        <div class="demo" aria-hidden="true">
+          <div class="demo-motion" style="animation: ${ex.demo} 3.4s ease-in-out infinite;"></div>
+        </div>
+        <div class="tutorial-ex-info">
+          <strong>${ex.name} <span class="reps">${ex.reps}</span></strong>
+          <p class="muted small">${ex.name.includes("Supino") || ex.name.includes("Agachamento") || ex.name.includes("Flex") ? "Execução lenta, controle total do movimento." : "Foco na amplitude certa e na forma."}</p>
+        </div>
+      </li>`
+          )
+          .join("");
+      }
+      const accent = isRest ? "#8f7773" : workout.accent;
+      const title = isRest ? "Descanso" : workout.title;
+      const subtitle = isRest ? "Recuperação" : workout.groups;
+      const dayLabel = isRest ? "Descanso" : workout.day;
+      return `<article class="tutorial-card${isRest ? " is-rest" : ""}" style="--accent:${accent}">
+        <div class="tutorial-head"><span class="tutorial-day">${dayLabel}</span></div>
+        <h3>${title}</h3>
+        <p class="tutorial-sub">${subtitle}</p>
+        <ul class="tutorial-list">${body}</ul>
+      </article>`;
+    });
+    root.innerHTML = cards.join("");
   }
 
   // ---------- Progresso ----------

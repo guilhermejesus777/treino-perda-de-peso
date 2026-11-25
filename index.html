@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=5" />
+  <link rel="stylesheet" href="./styles.css?v=6" />
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -71,6 +71,9 @@
       </button>
       <button class="tab" data-view="progresso" aria-selected="false">
         <svg class="ic"><use href="#i-chart"/></svg><span>Progresso</span>
+      </button>
+      <button class="tab" data-view="tutorial" aria-selected="false">
+        <svg class="ic"><use href="#i-play"/></svg><span>Tutorial</span>
       </button>
       <button class="tab tab-config" id="openSettings" aria-label="Configurações">
         <svg class="ic"><use href="#i-settings"/></svg><span>Ajustes</span>
@@ -244,6 +247,17 @@
           <span class="muted small">Tire uma foto ou adicione manualmente.</span>
         </div>
       </div>
+    </section>
+
+    <!-- ============ TUTORIAL ============ -->
+    <section class="view" id="view-tutorial">
+      <div class="section-head">
+        <div>
+          <h2>Tutorial</h2>
+          <p class="muted">Animações de como executar cada exercício. Separe por dia da semana.</p>
+        </div>
+      </div>
+      <div class="tutorial-grid" id="tutorialList"></div>
     </section>
 
     <!-- ============ PROGRESSO ============ -->
@@ -483,6 +497,6 @@
     </div>
   </dialog>
 
-  <script src="./app.js?v=5"></script>
+  <script src="./app.js?v=6"></script>
 </body>
 </html>

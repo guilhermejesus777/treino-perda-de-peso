@@ -20,6 +20,7 @@ Funciona no navegador e pode ser instalado no celular como um aplicativo, com te
 - Metas diárias configuráveis.
 - Dados salvos no próprio aparelho (`localStorage`). Nada vai para servidores nossos.
 - Instalável como app (PWA) no Android e no iPhone.
+- **Tutorial**: animações de como executar cada exercício, separado por dia da semana (Domingo, Segunda, Terça, Quarta, Quinta, Sexta, Sábado).
 
 ---
 
