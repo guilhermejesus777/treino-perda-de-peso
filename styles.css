@@ -1037,22 +1037,27 @@ ul { margin: 0; padding: 0; list-style: none; }
 .tutorial-ex-info .reps { color: var(--amber); font-weight: 700; }
 .tutorial-ex-info p { margin-top: 2px; font-size: 11px; }
 .demo { position: relative; width: 72px; height: 72px; flex: none; border: 1px dashed var(--line-strong); border-radius: 12px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.005)); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.demo-motion { position: absolute; left: 14px; right: 14px; top: 20px; height: 6px; border-radius: 3px; background: linear-gradient(180deg, #ffc46b, #ff7a18); box-shadow: 0 8px 16px rgba(255, 106, 24, 0.25); }
-.demo-motion::before, .demo-motion::after { content: ""; position: absolute; top: -9px; width: 12px; height: 18px; border-radius: 6px; background: linear-gradient(180deg, #ffcf9a, #ff7a18); }
-.demo-motion::before { left: 0; } .demo-motion::after { right: 0; }
+.demo-motion { --anim: tDown; --anim-delay: 0ms; --arm-anim: none; --anim-duration: 3.4s; position: absolute; left: 50%; top: 50%; width: 14px; height: 20px; transform: translate(-50%, -50%) translate(0, 0); background: linear-gradient(180deg, #ffcf9a, #ff7a18); border-radius: 6px 6px 3px 3px; box-shadow: 0 8px 16px rgba(255, 106, 24, 0.25); animation-name: var(--anim, tDown); animation-duration: var(--anim-duration, 3.4s); animation-timing-function: ease-in-out; animation-iteration-count: infinite; animation-delay: var(--anim-delay, 0ms); }
+.demo-motion::before { content: ""; position: absolute; top: -6px; left: calc(50% - 2.5px); width: 5px; height: 12px; transform-origin: 100% 0; background: linear-gradient(180deg, #ffcf9a, #ff7a18); border-radius: 2.5px; animation-name: var(--arm-anim, none); animation-duration: var(--anim-duration, 3.4s); animation-timing-function: ease-in-out; animation-iteration-count: infinite; animation-delay: var(--anim-delay, 0ms); }
+.demo-motion::after { content: ""; position: absolute; top: 6px; left: calc(50% - 2px); width: 4px; height: 12px; background: linear-gradient(180deg, #ffcf9a, #ff7a18); border-radius: 2px; }
 .workout-demo { position: relative; height: 100px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; }
-.workout-demo .demo-motion { position: absolute; left: 50%; top: 50%; width: 22px; height: 6px; margin: -3px 0 0 -11px; border-radius: 3px; background: linear-gradient(180deg, #ffc46b, #ff7a18); box-shadow: 0 8px 16px rgba(255, 106, 24, 0.25); animation-duration: 3.4s; animation-timing-function: ease-in-out; }
-.workout-demo .demo-motion::before, .workout-demo .demo-motion::after { content: ""; position: absolute; top: -9px; width: 12px; height: 18px; border-radius: 6px; background: linear-gradient(180deg, #ffcf9a, #ff7a18); }
-.workout-demo .demo-motion::before { left: 0; } .workout-demo .demo-motion::after { right: 0; }
+.workout-demo .demo-motion { position: absolute; width: 20px; height: 30px; }
+.workout-demo .demo-motion:nth-child(1) { left: 50%; }
+.workout-demo .demo-motion:nth-child(2) { left: calc(50% - 40px); }
+.workout-demo .demo-motion:nth-child(3) { left: calc(50% - 80px); }
+.workout-demo .demo-motion:nth-child(4) { left: calc(50% - 120px); }
+.workout-demo .demo-motion:nth-child(5) { left: calc(50% - 160px); }
+.workout-demo .demo-motion::before { top: -6px; left: calc(50% - 2.5px); width: 5px; height: 12px; transform-origin: 100% 0; }
+.workout-demo .demo-motion::after { top: 6px; left: calc(50% - 2px); width: 4px; height: 12px; }
 
-/* animações de repouso/execução */
-@keyframes tDown { 0%, 40% { transform: translate(0, 0); } 45%, 60% { transform: translate(0, 46px); } 65%, 100% { transform: translate(0, 0); } }
-@keyframes tUp { 0%, 30% { transform: translate(0, 0); } 35%, 100% { transform: translate(0, -72px); } }
-@keyframes tOHP { 0%, 38% { transform: translate(0, 0); } 43%, 100% { transform: translate(0, -84px); } }
-@keyframes tPull { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(0, 0) rotate(-26deg); } }
-@keyframes tCurl { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(0, 0) rotate(-32deg); } }
-@keyframes tLateral { 0%, 35% { transform: translate(0, 0); } 40%, 100% { transform: translate(56px, 0); } }
-@keyframes tCore { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, -16px); } }
+/* animações de personagem (execução) */
+@keyframes tDown { 0%, 40% { transform: translate(-50%, -50%) translate(0, 0); } 45%, 60% { transform: translate(-50%, -50%) translate(0, 24px); } 65%, 100% { transform: translate(-50%, -50%) translate(0, 0); } }
+@keyframes tUp { 0%, 30% { transform: translate(-50%, -50%) translate(0, 0); } 35%, 100% { transform: translate(-50%, -50%) translate(0, -58px); } }
+@keyframes tOHP { 0%, 38% { transform: translate(-50%, -50%) translate(0, 0); } 43%, 100% { transform: translate(-50%, -50%) translate(0, -72px); } }
+@keyframes tCore { 0%, 100% { transform: translate(-50%, -50%) translate(0, 0); } 50% { transform: translate(-50%, -50%) translate(0, -10px); } }
+@keyframes armLateral { 0%, 35% { transform: rotate(0deg); } 40%, 100% { transform: rotate(-72deg); } }
+@keyframes armPull { 0% { transform: rotate(0deg); } 100% { transform: rotate(-150deg); } }
+@keyframes armCurl { 0% { transform: rotate(0deg); } 100% { transform: rotate(-140deg); } }
 
 /* ---------------- Responsivo ---------------- */
 @media (max-width: 900px) {
@@ -1090,7 +1095,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .tutorial-grid { grid-template-columns: 1fr; }
   .tutorial-card { padding: 16px; }
   .demo { width: 60px; height: 60px; }
-  .demo-motion { top: 17px; }
+  .demo-motion { top: 50%; }
   .day-card { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 16px; padding: 18px 16px; }
   .day-info { width: 100%; }
   .macro-bars { text-align: left; }

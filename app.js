@@ -999,6 +999,14 @@ Regras:
     C: ["tPull", "tPull", "tCurl", "tCurl", "tCore"],
   };
 
+  const ARM_ANIM = { tLateral: "armLateral", tPull: "armPull", tCurl: "armCurl" };
+
+  function demoStyle(anim, delay = 0) {
+    const arm = ARM_ANIM[anim];
+    const isArm = Boolean(arm);
+    return `--anim: ${isArm ? "none" : anim}; --arm-anim: ${isArm ? arm : "none"}; --anim-delay: ${delay}ms;`;
+  }
+
   function renderTutorial() {
     const root = document.getElementById("tutorialList");
     if (!root) return;
@@ -1015,14 +1023,14 @@ Regras:
         const strip = `<div class="workout-demo">${seq
           .map(
             (anim, i) =>
-              `<div class="demo-motion" style="animation: ${anim} 3.4s ease-in-out infinite; animation-delay: ${i * 3400}ms;"></div>`
+              `<div class="demo-motion" style="${demoStyle(anim, i * 3400)}"></div>`
           )
           .join("")}</div>`;
         body = `${strip}<ul class="tutorial-list">${exercises
           .map(
             (ex) => `<li class="tutorial-exercise">
         <div class="demo" aria-hidden="true">
-          <div class="demo-motion" style="animation: ${ex.demo} 3.4s ease-in-out infinite;"></div>
+          <div class="demo-motion" style="${demoStyle(ex.demo)}"></div>
         </div>
         <div class="tutorial-ex-info">
           <strong>${ex.name} <span class="reps">${ex.reps}</span></strong>
