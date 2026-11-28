@@ -993,19 +993,11 @@ Regras:
     { key: "sábado", label: "Sábado", workoutId: null },
   ];
 
-  const WORKOUT_SEQ = {
-    A: ["tDown", "tDown", "tOHP", "tLateral", "tDown"],
-    B: ["tDown", "tUp", "tUp", "tUp", "tUp"],
-    C: ["tPull", "tPull", "tCurl", "tCurl", "tCore"],
+  const WORKOUT_POSTERS = {
+    A: "./assets/treino-a.jpg",
+    B: "./assets/treino-b.jpg",
+    C: "./assets/treino-c.jpg",
   };
-
-  const ARM_ANIM = { tLateral: "armLateral", tPull: "armPull", tCurl: "armCurl" };
-
-  function demoStyle(anim, delay = 0) {
-    const arm = ARM_ANIM[anim];
-    const isArm = Boolean(arm);
-    return `--anim: ${isArm ? "none" : anim}; --arm-anim: ${isArm ? arm : "none"}; --anim-delay: ${delay}ms;`;
-  }
 
   function renderTutorial() {
     const root = document.getElementById("tutorialList");
@@ -1019,19 +1011,11 @@ Regras:
       if (isRest) {
         body = `<p class="muted small" style="margin-top:10px">Recuperação: caminhada, alongamento ou mobilidade. Sem treino de carga hoje.</p>`;
       } else {
-        const seq = WORKOUT_SEQ[workout.id] || [];
-        const strip = `<div class="workout-demo">${seq
-          .map(
-            (anim, i) =>
-              `<div class="demo-motion" style="${demoStyle(anim, i * 3400)}"></div>`
-          )
-          .join("")}</div>`;
-        body = `${strip}<ul class="tutorial-list">${exercises
+        const poster = WORKOUT_POSTERS[workout.id];
+        body = `<div class="tutorial-poster"><img src="${poster}" alt="${esc(workout.title)} — ${esc(workout.groups)}" loading="lazy" decoding="async" /></div>
+          <ul class="tutorial-list">${exercises
           .map(
             (ex) => `<li class="tutorial-exercise">
-        <div class="demo" aria-hidden="true">
-          <div class="demo-motion" style="${demoStyle(ex.demo)}"></div>
-        </div>
         <div class="tutorial-ex-info">
           <strong>${ex.name} <span class="reps">${ex.reps}</span></strong>
           <p class="muted small">${ex.name.includes("Supino") || ex.name.includes("Agachamento") || ex.name.includes("Flex") ? "Execução lenta, controle total do movimento." : "Foco na amplitude certa e na forma."}</p>
@@ -1048,7 +1032,7 @@ Regras:
         <div class="tutorial-head"><span class="tutorial-day">${dayLabel}</span></div>
         <h3>${title}</h3>
         <p class="tutorial-sub">${subtitle}</p>
-        <ul class="tutorial-list">${body}</ul>
+        ${body}
       </article>`;
     });
     root.innerHTML = cards.join("");

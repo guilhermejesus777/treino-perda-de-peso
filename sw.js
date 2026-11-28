@@ -1,11 +1,14 @@
 /* Service worker — Projeto Perda de Peso */
-const CACHE = "ppp-v10";
+const CACHE = "ppp-v11";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=10",
-  "./app.js?v=10",
+  "./styles.css?v=11",
+  "./app.js?v=11",
   "./manifest.webmanifest",
+  "./assets/treino-a.jpg",
+  "./assets/treino-b.jpg",
+  "./assets/treino-c.jpg",
   "./icons/icon.svg",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
